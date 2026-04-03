@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RepurposeAI — Drug Repurposing Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Repurpose<span>AI</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('home')">Home</button>
+    <button class="tab-btn" onclick="switchTab('explore')">Explore</button>
+    <button class="tab-btn" onclick="switchTab('repurpose')">Repurpose</button>
+    <button class="tab-btn" onclick="switchTab('test')">Test</button>
+    <button class="tab-btn" onclick="switchTab('about')">About</button>
+    <button class="tab-btn" onclick="switchTab('help')">Help</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">&#9788;</button>
+    <div class="nav-tag">QUANTUM-BIO 3.0</div>
+  </div>
+</nav>
+
+<!-- TAB: HOME -->
+<div id="home-panel" class="tab-panel active">
+  <canvas id="quantum-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none;"></canvas>
+  <section class="hero" style="position:relative; z-index:1;">
+    <div class="content-width">
+      <div class="hero-label">The Quantum Biology Engine</div>
+      <h1 style="text-transform: uppercase;">Decoding the<br/>Pharmacome.</h1>
+      <p>Decapitalizing on Eroom's Law. Our 6-agent swarm architecture discovers hidden molecular efficacies inside overlooked clinical data, turning failed pipelines into breakthrough cures.</p>
+      
+      <div class="hero-stats" style="margin: 0 auto; display: inline-flex; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 20px; padding: 24px 60px;">
+        <div class="stat"><span class="stat-num">7</span><span class="stat-label">Pipeline stages</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">6</span><span class="stat-label">Research agents</span></div>
+        <div class="stat-div"></div>
+        <div class="stat"><span class="stat-num">10</span><span class="stat-label">Languages</span></div>
+      </div>
+      <div class="how-section" style="margin-top: 80px;">
+        <div class="how-label">Intelligent Pipeline</div>
+        <h2 class="how-title">Unified Research Framework</h2>
+        <div class="pipeline-steps">
+          <div class="pipeline-step"><div class="ps-num">1</div><div class="ps-title">Decomposition</div><div class="ps-desc">Subtask distribution</div></div>
+          <div class="ps-arrow">&#8594;</div>
+          <div class="pipeline-step"><div class="ps-num">2</div><div class="ps-title">Parallel Retrieval</div><div class="ps-desc">6-agent extraction</div></div>
+          <div class="ps-arrow">&#8594;</div>
+          <div class="pipeline-step"><div class="ps-num">3</div><div class="ps-title">Synthesis</div><div class="ps-desc">AI-driven hypothesis</div></div>
+          <div class="ps-arrow">&#8594;</div>
+          <div class="pipeline-step"><div class="ps-num">4</div><div class="ps-title">Verdict</div><div class="ps-desc">Strategic recommendation</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TAB: EXPLORE -->
+<div id="explore-panel" class="tab-panel">
+  <div class="content-width" style="padding: 120px 24px 60px;">
+    <div class="hero-label" style="display:inline-block; border-color: rgba(0,255,179,0.3); color: var(--accent); margin-bottom:12px;">REAL-TIME GLOBAL FEED</div>
+    <h2 style="font-family:var(--font-serif); font-size:32px; color:var(--text); margin-bottom:12px;">Clinical Breakthroughs</h2>
+    <p style="color:var(--text-dim); margin-bottom:40px; font-size:15px;">Live monitoring of FDA approvals and breakthrough trial results for high-potential repurposing.</p>
+    
+    <div id="market-feed-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:48px;">
+      <!-- Items injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- TAB: REPURPOSE -->
+<div id="repurpose-panel" class="tab-panel">
+  <section class="hero" style="min-height: auto; padding-bottom: 40px;">
+    <div class="content-width">
+      <div class="hero-label">Central Analysis Tool</div>
+      <h2 class="compare-title">Initiate Research</h2>
+      <p class="compare-sub">Select a drug to begin the 7-stage autonomous evaluation.</p>
+      
+      <div class="search-box glass-card" style="max-width:800px; margin:0 auto">
+        <div style="position:relative">
+          <input type="text" id="molecule-input" placeholder="Enter drug name (e.g. Aspirin, Metformin)..." autocomplete="off" style="margin-bottom:20px"/>
+          <div id="autocomplete-list" class="autocomplete-list" style="display:none"></div>
+        </div>
+        <div class="search-bottom-row">
+          <select id="language-select" class="lang-select">
+            <option value="en">English</option>
+            <option value="ta">Tamil</option>
+            <option value="hi">Hindi</option>
+            <option value="te">Telugu</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="zh">Chinese</option>
+            <option value="ar">Arabic</option>
+            <option value="pt">Portuguese</option>
+          </select>
+          <button class="analyse-btn" id="analyze-btn" onclick="startAnalysis()">
+            <span id="btn-text">Analyse Candidate</span><span>&#8594;</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="example-pills" style="margin-top:24px">
+        <span class="example-pill" onclick="setMolecule('Metformin')">Metformin</span>
+        <span class="example-pill" onclick="setMolecule('Sildenafil')">Sildenafil</span>
+        <span class="example-pill" onclick="setMolecule('Thalidomide')">Thalidomide</span>
+        <span class="example-pill" onclick="setMolecule('Rapamycin')">Rapamycin</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="compare-section" style="padding-top:40px; min-height: auto">
+    <div class="content-width">
+      <div class="nav-tabs" style="margin-bottom:32px; justify-content:center; border:none; background:transparent">
+        <button class="tab-btn active" id="batch-mode-btn" onclick="setRepurposeMode('batch')">Batch Analysis</button>
+        <button class="tab-btn" id="compare-mode-btn" onclick="setRepurposeMode('compare')">Comparison Mode</button>
+        <button class="tab-btn" id="disease-mode-btn" onclick="setRepurposeMode('disease')">Disease Mode</button>
+      </div>
+
+      <div id="batch-sub" class="repurpose-sub-section glass-card" style="margin-top:0px; text-align:left;">
+        <h2 style="font-family:var(--font-serif); font-size:24px; color:var(--text); margin-bottom:16px;">Batch Analysis Engine</h2>
+        <div class="batch-inputs" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px">
+          <input class="batch-input" type="text" placeholder="Drug 1" id="b1" autocomplete="off"/>
+          <input class="batch-input" type="text" placeholder="Drug 2" id="b2" autocomplete="off"/>
+          <input class="batch-input" type="text" placeholder="Drug 3" id="b3" autocomplete="off"/>
+        </div>
+        <button class="compare-btn" onclick="startBatch()" style="margin-top:20px">Run Batch Analysis</button>
+        <div id="batch-results" class="hidden" style="margin-top:32px"></div>
+      </div>
+
+      <div id="compare-sub" class="repurpose-sub-section glass-card hidden" style="margin-top:0px; text-align:center;">
+        <h2 style="font-family:var(--font-serif); font-size:24px; color:var(--text); margin-bottom:16px;">Dual-Candidate Comparison</h2>
+        <div class="compare-inputs">
+          <div class="compare-input-wrap"><label>Candidate 1</label><input type="text" id="compare-mol1" placeholder="e.g. Aspirin" autocomplete="off"/></div>
+          <div class="compare-vs">VS</div>
+          <div class="compare-input-wrap"><label>Candidate 2</label><input type="text" id="compare-mol2" placeholder="e.g. Metformin" autocomplete="off"/></div>
+        </div>
+        <button class="compare-btn" onclick="startComparison()">Compare Candidates</button>
+        <div id="compare-results" class="compare-results hidden"></div>
+      </div>
+
+      <div id="disease-sub" class="repurpose-sub-section glass-card hidden" style="margin-top:0px; text-align:left;">
+        <h2 style="font-family:var(--font-serif); font-size:24px; color:var(--text); margin-bottom:16px;">Disease-First Discovery</h2>
+        <input type="text" id="disease-input" class="batch-input" placeholder="Enter disease (e.g. Alzheimer, Pulmonary hypertension)..." autocomplete="off" style="margin-bottom:16px;font-size:16px;padding:16px 20px"/>
+        <button class="compare-btn" id="hyp-btn" onclick="startHypothesis()">Find Matching Candidates &#8594;</button>
+        <div id="hypothesis-results" class="hidden" style="margin-top:32px"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- TAB: TEST -->
+<div id="test-panel" class="tab-panel">
+  <div class="content-width" style="max-width:800px; padding: 40px 0;">
+    <div class="hero-label" style="display:inline-block; border-color: rgba(155,109,255,0.3); color: var(--accent3); margin-bottom:12px;">RESEARCHER VALIDATION</div>
+    <h2 style="font-family:var(--font-serif); font-size:32px; color:var(--text); margin-bottom:12px;">Hypothesis Calibration</h2>
+    <p style="color:var(--text-dim); margin-bottom:40px; font-size:15px;">Input your independent hypothesis and manually predict viability before running the Quantum Swarm. Discover if your clinical intuition matches our rigorous 6-agent analysis.</p>
+
+    <div class="test-card glass-card" id="test-question-card" style="margin: 0 auto;">
+        
+        <div class="compare-input-wrap" style="margin-bottom: 20px;">
+            <label style="color:var(--accent);">1. Drug Candidate</label>
+            <input type="text" id="test-drug-input" placeholder="e.g. Fluvastatin, Metformin" style="background: rgba(0,255,102,0.05); border-color: rgba(0,255,102,0.2);">
+        </div>
+
+        <div class="compare-input-wrap" style="margin-bottom: 28px;">
+            <label style="color:var(--accent2);">2. Hypothesized Target Disease</label>
+            <input type="text" id="test-disease-input" placeholder="e.g. Lung Cancer, Atherosclerosis">
+        </div>
+
+        <label style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 12px; text-transform: uppercase;">3. Your Clinical Prediction</label>
+        <div style="display:flex; gap:12px; margin-bottom: 32px;">
+            <button class="test-pred-btn active" id="pred-yes" onclick="setTestPrediction('yes')">Viable (Pursue)</button>
+            <button class="test-pred-btn" id="pred-no" onclick="setTestPrediction('no')">Not Viable (Reject)</button>
+        </div>
+
+        <button class="analyse-btn" onclick="submitStudentTest()" id="test-submit-btn">Engage Swarm Validation</button>
+    </div>
+
+    <div id="test-results-container" class="hidden" style="margin-top: 40px;"></div>
+  </div>
+</div>
+
+<!-- NEW TAB: ABOUT -->
+<div id="about-panel" class="tab-panel">
+  <section class="compare-section" style="justify-content: flex-start;">
+    <div class="content-width">
+      <div class="report-badge">Project Specs</div>
+      <h2 class="compare-title">Defeating Eroom's Law</h2>
+      <p class="compare-sub">Eroom's Law states drug discovery becomes slower and more expensive over time, despite technology. We aim to reverse the process.</p>
+      
+      <div class="glass-card" style="margin-top:40px; text-align: left;">
+        <h3 style="font-family:var(--font-serif); font-size:24px; margin-bottom:20px; color:var(--accent)">The Problem with the 'Black Box'</h3>
+        <p style="color:var(--text-dim); line-height:1.8; margin-bottom:32px">90% of drugs fail in clinical trials. Traditional AI platforms provide correlation without causation. RepurposeAI was built to solve the "Black Box" transparency problem. By employing a multi-agent framework across biological, regulatory, patent, and clinical domains simultaneously, we calculate human-readable Reasoning Paths for every drug candidate, validating the <em>why</em> not just the <em>what</em>.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px">
+          <div>
+            <h4 style="color:var(--accent2); margin-bottom:12px">Intellectual Freedom</h4>
+            <p style="font-size:14px; color:var(--text-muted)">We synthesize patent data alongside biochemical data to expose high-potential compounds that are Free-To-Operate in the public domain.</p>
+          </div>
+          <div>
+            <h4 style="color:var(--accent3); margin-bottom:12px">Academic Enablement</h4>
+            <p style="font-size:14px; color:var(--text-muted)">Designed for leading research institutes, our goal is to empower a decentralized network of independent researchers to circumvent legacy big-pharma bottlenecks.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- NEW TAB: HELP -->
+<div id="help-panel" class="tab-panel">
+  <section class="compare-section" style="justify-content: flex-start;">
+    <div class="content-width">
+      <div class="report-badge">Documentation</div>
+      <h2 class="compare-title">Guidance & Support</h2>
+      <p class="compare-sub">How to get the most out of the drug discovery platform.</p>
+      
+      <div class="glass-card" style="margin-top:40px">
+        <ul style="list-style:none; text-align: left">
+          <li style="margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid var(--border)">
+            <h4 style="color:var(--accent2); margin-bottom:8px">1. Starting a Deep Dive</h4>
+            <p style="font-size:14px; color:var(--text-dim)">Go to the <b>Repurpose</b> tab, enter a molecule name, and wait for the 6 agents to finish their retrieval. The AI will then synthesize a full hypothesis.</p>
+          </li>
+          <li style="margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid var(--border)">
+            <h4 style="color:var(--accent2); margin-bottom:8px">2. Understanding Confidence</h4>
+            <p style="font-size:14px; color:var(--text-dim)">The Confidence Score (0-100%) reflects the richness of data found across all domains. Higher scores indicate stronger clinical and patent evidence.</p>
+          </li>
+          <li>
+            <h4 style="color:var(--accent2); margin-bottom:8px">3. Knowledge Test</h4>
+            <p style="font-size:14px; color:var(--text-dim)">Use the <b>Test</b> tab to challenge your clinical intuition against our AI results. This is recommended for students to improve their pharmacology logic.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+
+<section class="compare-section hidden" id="hypothesis-section">
+  <div class="compare-inner" style="max-width:780px">
+    <div class="compare-back" onclick="showSection('hero')">&#8592; Back</div>
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">New Mode</div>
+    <h2 class="compare-title">Disease &#8594; Drug Discovery</h2>
+    <p class="compare-sub">Enter a disease. Our overlap engine finds drugs with biological pathway overlap that have NOT been widely trialled yet — these are your hidden opportunities.</p>
+    <input type="text" id="disease-input" class="batch-input" placeholder="e.g. Colorectal cancer, Alzheimer, Pulmonary hypertension..." autocomplete="off" style="margin-bottom:16px;font-size:16px;padding:16px 20px"/>
+    <button class="compare-btn" id="hyp-btn" onclick="startHypothesis()"><span id="hyp-btn-text">Find Drug Candidates &#8594;</span></button>
+    <div id="hypothesis-results" class="hidden" style="margin-top:32px"></div>
+  </div>
+</section>
+
+<!-- NEW: MARKET FEED SECTION -->
+<section class="compare-section hidden" id="market-feed-section">
+  <div class="compare-inner" style="max-width:900px">
+    <div class="compare-back" onclick="showSection('hero')">&#8592; Back</div>
+    <div class="report-badge" style="color:var(--accent);border-color:rgba(0,255,179,0.3)">Real-time Global Feed</div>
+    <h2 class="compare-title">New Drug Approvals & Clinical Breakthroughs</h2>
+    <p class="compare-sub">Live monitoring of FDA approvals, EMA filings, and breakthrough clinical trial results for repurposing reference.</p>
+    
+    <div id="market-feed-container" class="market-feed-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:24px">
+      <!-- Items will be injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- NEW: KNOWLEDGE TEST SECTION -->
+<section class="compare-section hidden" id="test-section">
+  <div class="compare-inner" style="max-width:850px">
+    <div class="compare-back" onclick="showSection('hero')">&#8592; Back</div>
+    <div class="report-badge" style="color:var(--accent3);border-color:rgba(155,109,255,0.3)">Researcher Knowledge Check</div>
+    <h2 class="compare-title">Clinical Reasoning Test</h2>
+    <p class="compare-sub">Challenge your repurposing logic. Analyze the data and compare your verdict with the AI oracles.</p>
+    
+    <div class="test-card tilt-card" id="test-question-card" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:32px;margin-top:24px">
+      <div id="test-drug-display" class="test-header" style="margin-bottom:24px">
+        <div class="test-label" style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Analyze this drug for repurposing:</div>
+        <h3 id="test-molecule-name" style="font-family:var(--font-serif);font-size:28px;color:var(--accent)">Loading...</h3>
+      </div>
+      
+      <div class="test-context" id="test-drug-context" style="margin-bottom:24px;font-size:14px;color:var(--text2);line-height:1.7;padding:16px;background:rgba(255,255,255,0.03);border-radius:12px"></div>
+      
+      <div class="test-user-input">
+        <label style="display:block;margin-bottom:16px;font-size:15px">Do you think this drug is viable for repurposing into <span id="test-disease-target" style="color:var(--accent2);font-weight:600"></span>?</label>
+        <div class="test-choice-row" style="display:flex;gap:12px">
+          <button class="analyse-btn" style="flex:1" onclick="submitTestAnswer(true)">Yes, Viable</button>
+          <button class="analyse-btn" style="flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border2);box-shadow:none" onclick="submitTestAnswer(false)">No, Not Viable</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="test-results" class="hidden" style="margin-top:24px"></div>
+  </div>
+</section>
+
+<section class="loading-section hidden" id="loading-section">
+  <div class="loading-content">
+    <div class="loading-title">Orchestrating research for <span id="loading-molecule"></span></div>
+    <div class="loading-sub">7-stage pipeline &middot; 6 agents running in parallel</div>
+    <div class="agents-grid">
+      <div class="agent-card" id="agent-clinical"><div class="agent-icon">&#9877;</div><div class="agent-name">Clinical</div><div class="agent-source">ClinicalTrials.gov</div><div class="agent-status" id="status-clinical">Searching trials...</div><div class="agent-bar"><div class="agent-progress" id="prog-clinical"></div></div></div>
+      <div class="agent-card" id="agent-patent"><div class="agent-icon">&#9878;</div><div class="agent-name">Patents</div><div class="agent-source">PubChem NCBI</div><div class="agent-status" id="status-patent">Checking IP...</div><div class="agent-bar"><div class="agent-progress" id="prog-patent"></div></div></div>
+      <div class="agent-card" id="agent-market"><div class="agent-icon">&#9672;</div><div class="agent-name">Market</div><div class="agent-source">OpenFDA NDC</div><div class="agent-status" id="status-market">Analysing market...</div><div class="agent-bar"><div class="agent-progress" id="prog-market"></div></div></div>
+      <div class="agent-card" id="agent-regulatory"><div class="agent-icon">&#10022;</div><div class="agent-name">Regulatory</div><div class="agent-source">FDA Labels</div><div class="agent-status" id="status-regulatory">Reading labels...</div><div class="agent-bar"><div class="agent-progress" id="prog-regulatory"></div></div></div>
+      <div class="agent-card" id="agent-pubmed"><div class="agent-icon">&#128196;</div><div class="agent-name">Literature</div><div class="agent-source">PubMed NCBI</div><div class="agent-status" id="status-pubmed">Searching papers...</div><div class="agent-bar"><div class="agent-progress" id="prog-pubmed"></div></div></div>
+      <div class="agent-card" id="agent-mechanism"><div class="agent-icon">&#129516;</div><div class="agent-name">Mechanism</div><div class="agent-source">PubChem Biology</div><div class="agent-status" id="status-mechanism">Analysing structure...</div><div class="agent-bar"><div class="agent-progress" id="prog-mechanism"></div></div></div>
+    </div>
+    <div class="synthesis-row hidden" id="synthesis-row">
+      <div class="synthesis-pulse"></div>
+      <span>AI building cure hypothesis...</span>
+    </div>
+    
+    <div id="swarm-terminal" style="margin-top:40px; background:rgba(0,0,0,0.8); border:1px solid var(--accent); border-radius:12px; padding:16px; font-family:var(--font-mono); font-size:11px; color:var(--accent); text-align:left; height:120px; overflow:hidden; position:relative; box-shadow:0 0 30px rgba(0,255,102,0.1); width:100%;">
+      <div class="term-header" style="border-bottom:1px solid rgba(0,255,102,0.3); padding-bottom:8px; margin-bottom:8px; font-weight:bold; letter-spacing:1px;">> SWARM PROTOCOL ACTIVATED</div>
+      <div id="term-logs" style="line-height:1.6; opacity:0.8;"></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:40px; background:linear-gradient(transparent, rgba(0,0,0,0.9));"></div>
+    </div>
+  </div>
+</section>
+
+<section class="results-section hidden" id="results-section">
+  <div class="results-header">
+    <div class="results-back" onclick="goBack()">&#8592; New analysis</div>
+    <div class="results-molecule" id="results-molecule-name"></div>
+    <div class="results-meta">
+      <span class="results-timestamp" id="results-timestamp"></span>
+      <span class="results-elapsed" id="results-elapsed"></span>
+    </div>
+    <button class="export-btn" onclick="shareReport()" style="margin-right:8px">&#8679; Share</button>
+    <button class="export-btn" onclick="downloadPDF()" style="margin-right:8px">&#128196; Download PDF</button>
+    <button class="export-btn" onclick="exportReport()">&#8595; Export JSON</button>
+  </div>
+
+  <div id="contradiction-banner" class="hidden"></div>
+  <div id="context-banner" class="context-banner hidden"></div>
+
+  <div class="conf-breakdown-row">
+    <div class="conf-breakdown-label">Data richness</div>
+    <div class="conf-domain"><div class="cdb-name">Clinical</div><div class="cdb-bar"><div class="cdb-fill c-clinical" id="cdb-clinical-fill"></div></div><div class="cdb-val" id="cdb-clinical-val"></div></div>
+    <div class="conf-domain"><div class="cdb-name">Patents</div><div class="cdb-bar"><div class="cdb-fill c-patents" id="cdb-patents-fill"></div></div><div class="cdb-val" id="cdb-patents-val"></div></div>
+    <div class="conf-domain"><div class="cdb-name">Market</div><div class="cdb-bar"><div class="cdb-fill c-market" id="cdb-market-fill"></div></div><div class="cdb-val" id="cdb-market-val"></div></div>
+    <div class="conf-domain"><div class="cdb-name">Regulatory</div><div class="cdb-bar"><div class="cdb-fill c-regulatory" id="cdb-regulatory-fill"></div></div><div class="cdb-val" id="cdb-regulatory-val"></div></div>
+  </div>
+
+  <!-- NEW: EVIDENCE CARD / REASONING PATH -->
+  <div class="evidence-card-section hidden" id="evidence-card-section">
+    <div class="evidence-card">
+      <div class="ec-header">
+        <div class="ec-badge">Evidence Card — Reasoning Path</div>
+        <div class="ec-title">Solving the "Black Box" Problem</div>
+      </div>
+      <div class="ec-grid">
+        <div class="ec-item">
+          <div class="ec-item-label">Molecular Logic</div>
+          <div class="ec-item-val" id="ec-mol-logic"></div>
+        </div>
+        <div class="ec-item">
+          <div class="ec-item-label">Genetic Pathway</div>
+          <div class="ec-item-val" id="ec-gen-path"></div>
+        </div>
+        <div class="ec-item">
+          <div class="ec-item-label">Side-Effect Proxy</div>
+          <div class="ec-item-val" id="ec-side-proxy"></div>
+        </div>
+      </div>
+      <div class="ec-pathway">
+        <div class="ec-path-title">Full Reasoning Path</div>
+        <ul class="ec-path-list" id="ec-path-list"></ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- OVERLAP ENGINE + SIMILARITY -->
+  <div class="overlap-similarity-row hidden" id="overlap-sim-row">
+    <div class="overlap-card" id="overlap-card">
+      <div class="overlap-badge">Pathway Overlap Engine</div>
+      <div class="overlap-title" id="overlap-title"></div>
+      <div class="overlap-pathways" id="overlap-pathways"></div>
+    </div>
+    <div class="overlap-card" id="similarity-card">
+      <div class="overlap-badge" style="color:var(--accent3);border-color:rgba(155,109,255,0.3);background:rgba(155,109,255,0.08)">Drug Similarity</div>
+      <div class="overlap-title" id="sim-title"></div>
+      <div class="overlap-pathways" id="sim-drugs"></div>
+    </div>
+  </div>
+
+  <div class="molecule-3d-section hidden" id="mol3d-section">
+    <div class="mol3d-header">
+      <div>
+        <div class="mol3d-badge">3D Molecular Structure</div>
+        <div class="mol3d-name" id="mol3d-name"></div>
+      </div>
+      <div class="mol3d-pills" id="mol3d-pills"></div>
+    </div>
+    <div class="mol3d-body">
+      <div id="molecule-canvas-wrap">
+        <canvas id="molecule-canvas"></canvas>
+        <div class="mol3d-controls">
+          <button class="mol3d-ctrl-btn" onclick="resetMolView()">Reset</button>
+          <button class="mol3d-ctrl-btn" id="spin-btn" onclick="toggleMolSpin()">Stop Spin</button>
+        </div>
+      </div>
+      <div class="mol3d-info">
+        <div class="mol3d-mech-title">Mechanism of Action</div>
+        <div class="mol3d-mech-text" id="mol3d-mech"></div>
+        <div class="mol3d-mech-title" style="margin-top:14px">Biological Targets</div>
+        <div class="mol3d-targets" id="mol3d-targets"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cure-discovery-section hidden" id="cure-section">
+    <div class="cure-header">
+      <div class="cure-badge-row">
+        <div class="cure-badge">AI Cure Discovery</div>
+        <div class="cure-live-dot"></div>
+        <div class="cure-live-text">Generated from real clinical and biological data</div>
+      </div>
+      <div class="cure-title">This drug COULD treat these conditions</div>
+      <div class="cure-subtitle" id="cure-subtitle"></div>
+    </div>
+    <div class="cure-body">
+      <div class="cure-statement-wrap">
+        <div class="cure-statement-label">Biological Possibility Statement</div>
+        <div class="cure-statement-text" id="cure-statement"></div>
+      </div>
+      <div class="cure-opportunities">
+        <div class="cure-opp-title" id="cure-opp-count"></div>
+        <div class="cure-opp-grid" id="cure-opp-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE GRAPH -->
+  <div class="kg-section hidden" id="kg-section">
+    <div class="kg-header">
+      <div class="kg-badge">Knowledge Graph</div>
+      <div class="kg-subtitle">Drug — Pathway — Disease relationship map</div>
+    </div>
+    <div id="kg-canvas-wrap">
+      <canvas id="kg-canvas"></canvas>
+    </div>
+    <div class="kg-legend">
+      <span class="kg-leg-item"><span class="kg-dot" style="background:#00FFB3"></span>Drug</span>
+      <span class="kg-leg-item"><span class="kg-dot" style="background:#00C8FF"></span>Pathway</span>
+      <span class="kg-leg-item"><span class="kg-dot" style="background:#FF4D6D"></span>Disease</span>
+      <span class="kg-leg-item"><span class="kg-dot" style="background:#9B6DFF"></span>Similar drug</span>
+      <span class="kg-leg-item"><span class="kg-dot" style="background:#FFB347"></span>Trial</span>
+    </div>
+  </div>
+
+  <!-- SCORE EXPLANATION -->
+  <div class="score-explain-section hidden" id="score-explain-section">
+    <div class="score-explain-header">
+      <div class="score-explain-badge">Confidence Score 2.0</div>
+      <div class="score-explain-total" id="score-explain-total"></div>
+    </div>
+    <div class="score-explain-text" id="score-explain-text"></div>
+    <div class="score-5dim" id="score-5dim"></div>
+  </div>
+
+  <div class="viability-section hidden" id="viab-section">
+    <div class="viab-header">
+      <div>
+        <div class="viab-badge" id="viab-badge">Viability</div>
+        <div class="viab-subtitle">Why has this not been pursued? What are the real barriers?</div>
+      </div>
+      <div class="viab-score-ring" id="viab-score-ring">
+        <div class="viab-score-num" id="viab-score-num">--</div>
+        <div class="viab-score-label">viability</div>
+      </div>
+    </div>
+    <div class="viab-body">
+      <div class="viab-grid" id="viab-grid"></div>
+      <div class="why-not-box hidden" id="why-not-box">
+        <div class="why-not-title">Why this has not been pursued yet:</div>
+        <div id="why-not-items"></div>
+      </div>
+      <div class="negative-box hidden" id="negative-box">
+        <div class="neg-title">What this drug CANNOT treat and why:</div>
+        <div id="negative-items"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-container">
+    <div class="report-header">
+      <div class="report-badge">AI Synthesis Report</div>
+      <h2 id="report-title">Innovation Opportunity Assessment</h2>
+      <p id="report-summary" class="report-summary"></p>
+      <div class="confidence-bar-wrap">
+        <span class="conf-label">Confidence</span>
+        <div class="confidence-bar"><div class="confidence-fill" id="confidence-fill"></div></div>
+        <span class="conf-value" id="conf-value">--</span>
+        <span class="conf-label-text" id="conf-label-text"></span>
+      </div>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><div class="card-num">01</div><div class="card-title">Unmet Needs</div><div class="card-finding" id="unmet-finding"></div><div class="card-evidence" id="unmet-evidence"></div><a class="card-source" id="unmet-source-link" href="#" target="_blank"></a></div>
+      <div class="report-card"><div class="card-num">02</div><div class="card-title">Pipeline Status</div><div class="card-finding" id="pipeline-finding"></div><div class="card-evidence" id="pipeline-evidence"></div><a class="card-source" id="pipeline-source-link" href="#" target="_blank"></a></div>
+      <div class="report-card"><div class="card-num">03</div><div class="card-title">Patent Landscape</div><div class="card-finding" id="patent-finding"></div><div class="card-evidence" id="patent-evidence"></div><a class="card-source" id="patent-source-link" href="#" target="_blank"></a></div>
+      <div class="report-card"><div class="card-num">04</div><div class="card-title">Market Potential</div><div class="card-finding" id="market-finding"></div><div class="card-evidence" id="market-evidence"></div><a class="card-source" id="market-source-link" href="#" target="_blank"></a></div>
+    </div>
+    <div class="insight-banner"><div class="insight-label">Cross-domain insight</div><p id="cross-insight"></p></div>
+    <div class="recommendation-box">
+      <div class="rec-left"><div class="rec-label">Strategic Verdict</div><div class="rec-verdict" id="rec-verdict"></div><p id="rec-reasoning"></p></div>
+      <div class="rec-right"><div class="rec-steps-label">Next steps</div><ul id="rec-steps"></ul></div>
+    </div>
+    <div class="risks-row"><div class="risks-label">Key risks</div><div class="risks-list" id="risks-list"></div></div>
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-card-title">Trial phases</div><div style="position:relative;height:180px"><canvas id="phases-chart"></canvas></div></div>
+      <div class="chart-card"><div class="chart-card-title">Trial status</div><div style="position:relative;height:180px"><canvas id="status-chart"></canvas></div></div>
+      <div class="chart-card"><div class="chart-card-title">Opportunity radar</div><div style="position:relative;height:180px"><canvas id="radar-chart"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- SCORE EXPLAINER -->
+  <div class="score-explain-section hidden" id="score-explain-section">
+    <div class="se-header">
+      <div class="se-badge">Score breakdown explained</div>
+      <div class="se-subtitle">How we calculated the confidence score — no black box</div>
+    </div>
+    <div id="score-explain-body"></div>
+  </div>
+
+  <!-- DISEASE CONFIDENCE CHART -->
+  <div class="disease-scores-section hidden" id="disease-scores-section">
+    <div class="ds-header">
+      <div class="ds-badge">Repurposing confidence by disease</div>
+      <div class="ds-subtitle">Ranked by AI confidence score — higher = stronger evidence</div>
+    </div>
+    <div style="position:relative;height:220px;padding:16px 24px 8px">
+      <canvas id="disease-scores-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- TRIAL TIMELINE -->
+  <div class="timeline-section hidden" id="timeline-section">
+    <div class="tl-header">
+      <div class="tl-badge">Clinical trial timeline</div>
+      <div class="tl-subtitle">Phase vs year — size shows phase. Drag to explore.</div>
+    </div>
+    <div style="position:relative;height:200px;padding:12px 20px 8px">
+      <canvas id="timeline-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- COMPARISON MINI -->
+  <div class="comparison-mini-section hidden" id="comparison-mini-section">
+    <div class="cmp-header">
+      <div class="cmp-badge">vs previous analysis</div>
+      <div class="cmp-subtitle">How this drug compares to your last analysis</div>
+    </div>
+    <div style="position:relative;height:220px;padding:12px 24px 8px">
+      <canvas id="comparison-mini-chart"></canvas>
+    </div>
+  </div>
+
+  <div class="qa-section">
+    <div class="qa-title">Ask the AI anything</div>
+    <div class="qa-sub">Questions answered using the full cross-domain context from this analysis</div>
+    <div class="qa-suggestions">
+      <span class="qa-pill" onclick="askSuggestion(this)">Why could this work biologically?</span>
+      <span class="qa-pill" onclick="askSuggestion(this)">What is the biggest barrier?</span>
+      <span class="qa-pill" onclick="askSuggestion(this)">Which disease has the strongest evidence?</span>
+      <span class="qa-pill" onclick="askSuggestion(this)">Is this commercially viable?</span>
+      <span class="qa-pill" onclick="askSuggestion(this)">Explain the cross-domain insight</span>
+    </div>
+    <div class="qa-input-row">
+      <input type="text" id="qa-input" placeholder="Ask anything about this drug..." autocomplete="off"/>
+      <button class="qa-btn" id="qa-btn" onclick="askFollowup()">Ask</button>
+    </div>
+    <div class="qa-history" id="qa-history"></div>
+  </div>
+
+  <!-- DISEASE-FIRST RESULTS -->
+  <div class="disease-results hidden" id="disease-results">
+    <div class="dr-header">
+      <div class="dr-badge">Disease-First Hypothesis Engine</div>
+      <div class="dr-title" id="dr-title"></div>
+    </div>
+    <div class="dr-hypothesis" id="dr-hypothesis"></div>
+    <div class="dr-candidates" id="dr-candidates"></div>
+  </div>
+
+  <div class="raw-data-section">
+    <div class="raw-data-title">Raw data — all sources verified</div>
+    <div class="raw-tabs">
+      <button class="raw-tab active" onclick="showTab('clinical-raw',this)">Clinical Trials</button>
+      <button class="raw-tab" onclick="showTab('patent-raw',this)">Patents</button>
+      <button class="raw-tab" onclick="showTab('market-raw',this)">Market</button>
+      <button class="raw-tab" onclick="showTab('regulatory-raw',this)">Regulatory</button>
+      <button class="raw-tab" onclick="showTab('pubmed-raw',this)">Literature</button>
+    </div>
+    <div id="clinical-raw"   class="raw-panel active"></div>
+    <div id="patent-raw"     class="raw-panel"></div>
+    <div id="market-raw"     class="raw-panel"></div>
+    <div id="regulatory-raw" class="raw-panel"></div>
+    <div id="pubmed-raw"     class="raw-panel"></div>
+  </div>
+</section>
+
+<div class="error-toast hidden" id="error-toast"></div>
+<script src="/static/js/main.js"></script>
+</body>
+</html>

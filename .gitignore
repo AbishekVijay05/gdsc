@@ -1,0 +1,3 @@
+./env
+./backend/modules/__pycache__/
+./venv
