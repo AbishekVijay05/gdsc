@@ -123,6 +123,7 @@
         <button class="tab-btn active" id="batch-mode-btn" onclick="setRepurposeMode('batch')">Batch Analysis</button>
         <button class="tab-btn" id="compare-mode-btn" onclick="setRepurposeMode('compare')">Comparison Mode</button>
         <button class="tab-btn" id="disease-mode-btn" onclick="setRepurposeMode('disease')">Disease Mode</button>
+        <button class="tab-btn" id="ayurvedic-mode-btn" onclick="setRepurposeMode('ayurvedic')">Ayurvedic</button>
       </div>
 
       <div id="batch-sub" class="repurpose-sub-section glass-card" style="margin-top:0px; text-align:left;">
@@ -152,6 +153,32 @@
         <input type="text" id="disease-input" class="batch-input" placeholder="Enter disease (e.g. Alzheimer, Pulmonary hypertension)..." autocomplete="off" style="margin-bottom:16px;font-size:16px;padding:16px 20px"/>
         <button class="compare-btn" id="hyp-btn" onclick="startHypothesis()">Find Matching Candidates &#8594;</button>
         <div id="hypothesis-results" class="hidden" style="margin-top:32px"></div>
+      </div>
+
+      <div id="ayurvedic-sub" class="repurpose-sub-section glass-card hidden" style="margin-top:0px; text-align:left;">
+        <h2 style="font-family:var(--font-serif); font-size:24px; color:var(--text); margin-bottom:16px;">Ayurvedic Medicine Discovery</h2>
+        <p style="color:var(--text-dim); margin-bottom:28px; font-size:14px;">Explore Ayurvedic herbs and their active compounds for repurposing opportunities. Each compound is analyzed through the full 6-agent pipeline.</p>
+
+        <div class="search-box glass-card" style="max-width:700px; margin:0 auto">
+          <div style="position:relative">
+            <input type="text" id="ayurvedic-input" placeholder="Search Ayurvedic herb or compound (e.g. Curcumin, Piperine, Withaferin)..." autocomplete="off" style="margin-bottom:20px"/>
+            <div id="ayurvedic-autocomplete-list" class="autocomplete-list" style="display:none"></div>
+          </div>
+          <button class="analyse-btn" id="ayurvedic-analyze-btn" onclick="startAyurvedicAnalysis()">
+            <span id="ayurvedic-btn-text">Analyse Ayurvedic Compound</span><span>&#8594;</span>
+          </button>
+        </div>
+
+        <div class="example-pills" style="margin-top:24px">
+          <span class="example-pill" onclick="setAyurvedicMolecule('Curcumin')">Curcumin</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Withaferin A')">Withaferin A</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Berberine')">Berberine</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Piperine')">Piperine</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Boswellic acid')">Boswellic Acid</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Resveratrol')">Resveratrol</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Quercetin')">Quercetin</span>
+          <span class="example-pill" onclick="setAyurvedicMolecule('Gingerol')">Gingerol</span>
+        </div>
       </div>
     </div>
   </section>

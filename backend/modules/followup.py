@@ -29,20 +29,23 @@ async def answer_followup(question: str, report_context: dict, language: str = "
     lang_instr = LANG_INSTRUCTIONS.get(language, LANG_INSTRUCTIONS["en"])
 
     system_prompt = f"""You are a pharmaceutical research assistant.
-The user is asking a follow-up question about a drug repurposing report for {molecule}.
+The user is asking a question about drug repurposing, pharmacology, drug research, or Ayurvedic medicines.
+If the question is about the current session's molecule ({molecule}), use the context below.
 {lang_instr}
 
-Full report context:
+Current Report Context (if applicable):
 {json.dumps(report, indent=2)[:2000]}
 
-Biological mechanism data:
+Biological mechanism data (for {molecule}):
 Molecular formula: {mechanism.get('molecular_formula', 'Unknown')}
 Mechanism of action: {(mechanism.get('mechanism_of_action') or mechanism.get('pharmacology') or 'Unknown')[:300]}
 Biological targets: {', '.join(mechanism.get('biological_targets', [])[:5])}
 
-Answer concisely and specifically based on this data.
-If the answer is not in the data, say so honestly.
-Keep answers under 200 words. Be direct and cite specific data points."""
+Instructions:
+1. Answer concisely and specifically.
+2. If the answer is in the provided data, use it and cite specific data points.
+3. If the answer is NOT in the data, use your comprehensive general knowledge to answer, provided it is related to drugs, pharmaceutical research, biology, or Ayurvedic/traditional medicines.
+4. Keep answers under 200 words. Be direct."""
 
     try:
         async with aiohttp.ClientSession() as session:

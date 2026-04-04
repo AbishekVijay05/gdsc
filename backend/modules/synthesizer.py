@@ -231,13 +231,15 @@ def _fast_report(molecule, clinical, patents, market, regulatory, mechanism,
     approvals = regulatory.get("approvals", []) if regulatory and isinstance(regulatory, dict) else []
     approved = len(approvals) > 0
 
-    # Clinical scoring
-    if trial_count >= 10:
-        clinical_label, clinical_score = "Strong clinical evidence", 85
-    elif trial_count >= 5:
+    # Clinical scoring — use total_found (not just sample size)
+    if trial_total >= 100:
+        clinical_label, clinical_score = "Extensive clinical evidence", 90
+    elif trial_total >= 30:
+        clinical_label, clinical_score = "Strong clinical evidence", 78
+    elif trial_total >= 10:
         clinical_label, clinical_score = "Moderate clinical evidence", 65
     elif trial_count >= 1:
-        clinical_label, clinical_score = "Limited clinical data", 40
+        clinical_label, clinical_score = "Limited but growing data", 45
     else:
         clinical_label, clinical_score = "No clinical trials", 15
 
@@ -274,7 +276,7 @@ def _fast_report(molecule, clinical, patents, market, regulatory, mechanism,
 
     cond_str = ", ".join(conditions[:5]) if conditions else "Unknown conditions"
 
-    opportunities = _build_opps(molecule, trials, conditions, patent_total)
+    opportunities = _build_opps(molecule, trials, conditions, patent_total, trial_count, phases)
 
     risks = []
     if not approved and trial_count < 3:
@@ -351,7 +353,7 @@ def _fast_report(molecule, clinical, patents, market, regulatory, mechanism,
     }
 
 
-def _build_opps(molecule, trials, conditions, patent_total):
+def _build_opps(molecule, trials, conditions, patent_total, trial_count, phases):
     """Generate repurposing opportunities from live clinical trial data."""
     opps = []
     unique_conds = set()
@@ -369,11 +371,45 @@ def _build_opps(molecule, trials, conditions, patent_total):
         phase = best_trial.get("phase", "N/A") if best_trial.get("phase", "N/A") != "N/A" else None
         status = best_trial.get("status", "Unknown")
 
-        has_late_phase = any("Phase 3" in t.get("phase", "") or "Phase 4" in t.get("phase", "") for t in trials_match)
-        if has_late_phase or count >= 3:
-            conf, score = "MODERATE", 65
+        # Score based on trial quantity + quality
+        cond_score = 0
+        if count >= 5:
+            cond_score = 85
+        elif count >= 3:
+            cond_score = 70
+        elif count >= 2:
+            cond_score = 55
+        elif count == 1:
+            cond_score = 40
+
+        # Phase boost (case-insensitive — API returns "PHASE3" etc)
+        phase_vals = [t.get("phase", "").upper() for t in trials_match]
+        has_p4 = any("4" in p for p in phase_vals)
+        has_p3 = any("3" in p for p in phase_vals)
+        has_p2 = any("2" in p for p in phase_vals)
+
+        if has_p4:
+            cond_score += 15
+        elif has_p3:
+            cond_score += 12
+        elif has_p2:
+            cond_score += 6
+
+        # Status boost
+        status_norm = status.upper()
+        if "COMPLETED" in status_norm or "ACTIVE NOT RECRUITING" in status_norm:
+            cond_score += 5
+        if "RECRUITING" in status_norm:
+            cond_score += 3
+
+        cond_score = min(cond_score, 95)
+
+        if cond_score >= 70:
+            conf = "HIGH"
+        elif cond_score >= 50:
+            conf = "MODERATE"
         else:
-            conf, score = "INVESTIGATE", 35
+            conf = "INVESTIGATE"
 
         pat_status = "Free to use" if patent_total <= 3 else "Patent protected"
 
@@ -384,7 +420,7 @@ def _build_opps(molecule, trials, conditions, patent_total):
                 f"Clinical evidence: {molecule} tested in {count} trial(s) for {cond.title()}. Status: {status}"
             ),
             "confidence": conf,
-            "confidence_score": score,
+            "confidence_score": cond_score,
             "trial_id": nct,
             "trial_phase": phase,
             "market_gap": f"Unmet therapeutic need in {cond.title()}",

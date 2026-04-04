@@ -145,8 +145,10 @@ def _fallback_parse(user_message):
     """
     msg = user_message.lower().strip()
 
-    # Check for new search intent
-    search_prefixes = ["analyze ", "analyse ", "try ", "search ", "look up ", "check "]
+    search_prefixes = [
+        "analyze ", "analyse ", "try ", "search ", "check ",
+        "evaluate ", "investigate ", "run pipeline for "
+    ]
     for prefix in search_prefixes:
         if msg.startswith(prefix):
             molecule = user_message[len(prefix):].strip().title()

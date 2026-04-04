@@ -37,6 +37,50 @@ from modules.conversation_state import (
 )
 from modules.intent_translator import translate_intent, _fallback_parse
 
+# ── Common herbal/Ayurvedic name → canonical compound mapping ──────────
+HERB_NAME_MAP = {
+    "turmeric": "Curcumin",
+    "curcuma longa": "Curcumin",
+    "ashwagandha": "Withaferin A",
+    "withania somnifera": "Withaferin A",
+    "neem": "Azadirachtin",
+    "azadirachta indica": "Azadirachtin",
+    "holy basil": "Eugenol",
+    "tulsi": "Eugenol",
+    "ocimum sanctum": "Eugenol",
+    "bacopa": "Bacopamine",
+    "brahmi": "Bacopamine",
+    "bacopa monnieri": "Bacopamine",
+    "centella asiatica": "Asiaticoside",
+    "gotu kola": "Asiaticoside",
+    "triphala": "Gallic acid",
+    "guggul": "Guggulsterone",
+    "commiphora wightii": "Guggulsterone",
+    "guduchi": "Berberine",
+    "tinospora cordifolia": "Berberine",
+    "amla": "Gallic acid",
+    "emblica officinalis": "Gallic acid",
+    "boswellia": "Boswellic acid",
+    "boswellia serrata": "Boswellic acid",
+    "shankhpushpi": "Scopoletin",
+    "safed musli": "Diosgenin",
+    "ginger": "Gingerol",
+    "zingiber officinale": "Gingerol",
+    "long pepper": "Piperine",
+    "goldenseal": "Berberine",
+    "grape seed": "Resveratrol",
+    "red clover": "Genistein",
+    "green tea": "Epigallocatechin",
+    "licorice": "Glycyrrhizin",
+    "fenugreek": "Diosgenin",
+    "trigonella foenum": "Diosgenin",
+}
+
+def resolve_herb_name(name):
+    """Convert common/herbal drug names to canonical compound names for API lookup."""
+    return HERB_NAME_MAP.get(name.lower().strip(), name)
+
+
 # ── Result cache for pipeline outputs ───────────────────────────
 _pipeline_cache = {}
 
@@ -75,7 +119,7 @@ def languages():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data     = request.get_json()
-    molecule = data.get("molecule", "").strip()
+    molecule = resolve_herb_name(data.get("molecule", "").strip())
     language = data.get("language", "en")
     if not molecule:
         return jsonify({"error": "No molecule name provided"}), 400
@@ -221,7 +265,7 @@ def chat():
 
         # ── Handle by intent type ───────────────────────────────
         if intent_type == "new_search":
-            new_mol = intent.get("new_molecule", message.split()[-1]).strip()
+            new_mol = resolve_herb_name(intent.get("new_molecule", message.split()[-1]))
             if not new_mol:
                 new_mol = message
             update_session(session_id, {"molecule": new_mol})
@@ -481,7 +525,7 @@ def chat_stream():
             return Response(f"data: {result_json}\n\n", mimetype="text/event-stream")
 
     # ── new_search intent: stream agent progress ──────────────────────
-    new_mol = intent.get("new_molecule", message.split()[-1]).strip()
+    new_mol = resolve_herb_name(intent.get("new_molecule", message.split()[-1]))
     if not new_mol:
         new_mol = message
     update_session(session_id, {"molecule": new_mol})

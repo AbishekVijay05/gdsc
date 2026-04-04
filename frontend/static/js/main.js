@@ -1808,7 +1808,7 @@ async function sendChatMessage() {
   if (qa) qa.style.display = 'flex';
 
   // Detect if this is a "new_search" intent locally for SSE streaming
-  const isLikelyNewSearch = /^(analyze|analyse|try |search |look up |check |what about )/i.test(message);
+  const isLikelyNewSearch = /^(analyze|analyse|try |search |check |evaluate |investigate |run pipeline for )/i.test(message);
 
   if (isLikelyNewSearch) {
     // Use SSE streaming for new searches — shows agent progress in real time
@@ -1918,6 +1918,15 @@ async function sendChatMessageStreamed(message) {
           }
 
           const eventType = data.type;
+          
+          if (data.response_type === 'answer' || data.response_type === 'update' || data.response_type === 'clarification') {
+            if (data.message) appendChatMessage(data.response_type === 'clarification' ? 'clarification' : 'assistant', data.message);
+            if (data.session_id) chatSessionId = data.session_id;
+            updateSessionDisplay();
+            setChatLoading(false);
+            resolve();
+            return;
+          }
 
           if (eventType === 'agent_start') {
             // Agent started working
@@ -2310,3 +2319,107 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ═══ AYURVEDIC MEDICINE SUPPORT ════════════════════════════════════════════
+const AYURVEDIC_COMPOUNDS = [
+  "Curcumin", "Withaferin A", "Withanolide", "Berberine", "Piperine",
+  "Boswellic acid", "Resveratrol", "Quercetin", "Gingerol", "Shogaol",
+  "Bacoside", "Withania somnifera", "Centella asiatica", "Bacopa monnieri",
+  "Triphala", "Ashwagandha", "Tulsi", "Turmeric", "Neem",
+  "Guggul", "Guggulsterone", "Forskolin", "Andrographolide", "Glycyrrhizin",
+  "Nimbidin", "Emodin", "Embelin", "Catechin", "Epigallocatechin",
+  "Gallic acid", "Ellagic acid", "Ursolic acid", "Oleanolic acid"
+];
+
+function setAyurvedicMolecule(name) {
+  const input = document.getElementById('ayurvedic-input');
+  if (input) { input.value = name; input.focus(); }
+  startAyurvedicAnalysis();
+}
+
+async function startAyurvedicAnalysis() {
+  const input = document.getElementById('ayurvedic-input');
+  const molecule = input ? input.value.trim() : '';
+  if (!molecule) { showError('Please enter an Ayurvedic herb or compound name'); return; }
+
+  const btn = document.getElementById('ayurvedic-analyze-btn');
+  if (btn) btn.disabled = true;
+  document.getElementById('ayurvedic-btn-text').textContent = 'Analysing...';
+
+  addHistory(molecule);
+  showSection('loading-section');
+  document.getElementById('loading-molecule').textContent = molecule;
+  animateAgents();
+  simulateSwarmLogs(molecule);
+
+  try {
+    const language = getLanguage();
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ molecule, language })
+    });
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    currentData = data;
+    await new Promise(r => setTimeout(r, 50));
+    showSection('results-section');
+    await new Promise(r => setTimeout(r, 50));
+    renderResults(data);
+
+  } catch(e) {
+    console.error('[Ayurvedic] Error:', e);
+    showError('Analysis failed: ' + e.message);
+    showSection('repurpose-panel');
+  } finally {
+    if (btn) btn.disabled = false;
+    document.getElementById('ayurvedic-btn-text').textContent = 'Analyse Ayurvedic Compound';
+  }
+}
+
+// Ayurvedic autocomplete
+let ayurvedicAcOpen = false;
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('ayurvedic-input');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    const val = input.value.trim();
+    closeAyuvAutocomplete();
+    if (!val) return;
+    const matches = AYURVEDIC_COMPOUNDS.filter(c => c.toLowerCase().includes(val.toLowerCase()));
+    if (!matches.length) return;
+    const list = document.getElementById('ayurvedic-autocomplete-list');
+    if (!list) return;
+    list.innerHTML = matches.map(m => {
+      const highlighted = m.replace(new RegExp(`(${val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<b>$1</b>');
+      return `<div class="ac-item" data-val="${m}">${highlighted}</div>`;
+    }).join('');
+    list.style.display = 'block';
+    ayurvedicAcOpen = true;
+    list.querySelectorAll('.ac-item').forEach(item => {
+      item.addEventListener('click', () => {
+        input.value = item.getAttribute('data-val');
+        closeAyuvAutocomplete();
+        startAyurvedicAnalysis();
+      });
+    });
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); startAyurvedicAnalysis(); }
+  });
+
+  document.addEventListener('click', e => {
+    if (ayurvedicAcOpen && !e.target.closest('#ayurvedic-input') && !e.target.closest('#ayurvedic-autocomplete-list')) {
+      closeAyuvAutocomplete();
+    }
+  });
+});
+
+function closeAyuvAutocomplete() {
+  const list = document.getElementById('ayurvedic-autocomplete-list');
+  if (list) list.style.display = 'none';
+  ayurvedicAcOpen = false;
+}
